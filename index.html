@@ -179,6 +179,9 @@ h2::after {
   border-radius: 15px;
   overflow: hidden;
 
+  z-index: 9999;
+  isolation: isolate;
+
   background: rgba(255,255,255,0.95);
   backdrop-filter: blur(15px);
 
@@ -450,36 +453,72 @@ function toggleChatbox() {
   box.style.display = (box.style.display === "flex") ? "none" : "flex";
 }
 
-function sendMessage() {
+async function sendMessage() {
   const input = document.getElementById("userInput");
   const messages = document.getElementById("chatMessages");
 
   let text = input.value.trim();
   if (!text) return;
 
+  // show user message
   messages.innerHTML += `
-    <div class="message">
+    <div class="message"> 
       <div class="user-message">${text}</div>
     </div>
   `;
 
   input.value = "";
 
-  let reply = "I can help you explore my work.";
+  // show thinking
+  messages.innerHTML += `
+    <div class="message" id="thinking">
+      <div class="bot-message">🤖 Thinking...</div>
+    </div>
+  `;
 
-  if (text.includes("hi")) reply = "Hello 👋";
-  if (text.includes("project")) reply = "Check my projects above 🚀";
-  if (text.includes("skill")) reply = "I work on AI, ML, and LLM systems.";
+  messages.scrollTop = messages.scrollHeight;
 
-  setTimeout(() => {
+  try {
+    const res = await fetch("/query", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        query: text,
+        user_id: "portfolio_user"
+      })
+    });
+
+    const data = await res.json();
+
+    // remove thinking
+    document.getElementById("thinking").remove();
+
+    // show AI response
+    const formatted = data.answer
+      .replace(/\n/g, "<br>")                 // line breaks
+      .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>"); // bold
+
     messages.innerHTML += `
       <div class="message">
-        <div class="bot-message">${reply}</div>
+        <div class="bot-message">${formatted}</div>
       </div>
     `;
-    messages.scrollTop = messages.scrollHeight;
-  }, 500);
+
+  } catch (error) {
+    document.getElementById("thinking").remove();
+
+    messages.innerHTML += `
+      <div class="message">
+        <div class="bot-message">❌ Backend not reachable</div>
+      </div>
+    `;
+  }
+
+  messages.scrollTop = messages.scrollHeight;
 }
+
 
 document.getElementById("userInput")
 .addEventListener("keydown", e => {
