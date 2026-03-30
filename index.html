@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Portfolio</title>
+
+<style>
+
+/* ================= GLOBAL ================= */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to right, #eef2f3, #dfe9f3);
+  color: #333;
+  transition: all 0.3s ease;
+}
+
+/* ================= HERO ================= */
+.hero {
+  position: relative;
+  height: 80vh;
+  overflow: hidden;
+  background: radial-gradient(circle at center, #000 40%, #050b18 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Canvas Layer */
+#heroCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+
+  /* 🔥 Liquid feel */
+  filter: blur(25px) contrast(180%) brightness(120%);
+}
+
+/* Hero Content */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: white;
+}
+
+/* Text Styling */
+.hero h1 {
+  font-size: 3.2rem;
+  letter-spacing: 1px;
+  text-shadow: 0 0 25px rgba(0, 123, 255, 0.7);
+}
+
+.hero p {
+  opacity: 0.85;
+  margin-top: 10px;
+}
+
+.tagline {
+  font-size: 1.4rem;
+}
+
+.sub-text {
+  font-size: 0.95rem;
+  opacity: 0.7;
+}
+
+/* Buttons */
+.hero-buttons {
+  margin-top: 20px;
+}
+
+.btn {
+  display: inline-block;
+  padding: 10px 22px;
+  margin: 6px;
+  border-radius: 30px;
+  text-decoration: none;
+  font-size: 14px;
+  background: linear-gradient(135deg, #007bff, #00c6ff);
+  color: white;
+  transition: 0.3s;
+  box-shadow: 0 0 15px rgba(0,123,255,0.4);
+}
+
+.btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 0 25px rgba(0,123,255,0.8);
+}
+
+.btn.secondary {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.6);
+}
+
+/* ================= SECTION ================= */
+.section {
+  max-width: 1100px;
+  margin: 50px auto;
+  padding: 0 20px;
+}
+
+h2 {
+  position: relative;
+  margin-bottom: 10px;
+  padding-left: 10px;
+  border-left: 5px solid #007bff;
+}
+
+h2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #007bff, #00c6ff);
+}
+
+/* ================= CARDS ================= */
+.card {
+  background: rgba(255,255,255,0.85);
+  padding: 20px;
+  border-radius: 14px;
+  margin-top: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.3);
+  animation: slideUp 0.8s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(0,123,255,0.2);
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* ================= CHAT BUTTON ================= */
+.chatbot-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #00c6ff, #007bff);
+  color: white;
+  font-size: 22px;
+  padding: 14px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(0,198,255,0.6);
+  animation: bounce 2s infinite;
+  transition: 0.3s;
+}
+
+.chatbot-button:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 30px rgba(0,198,255,1);
+}
+
+/* ================= CHATBOX ================= */
+.chatbox {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 340px;
+  height: 550px;
+  display: none;
+  flex-direction: column;
+  border-radius: 15px;
+  overflow: hidden;
+
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(15px);
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  animation: fadeIn 0.4s ease;
+}
+
+.chat-header {
+  background: linear-gradient(135deg, #007bff, #00c6ff);
+  color: white;
+  padding: 12px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.chatbox-content {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  background: #f7f7f7;
+}
+
+/* Scrollbar */
+.chatbox-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chatbox-content::-webkit-scrollbar-thumb {
+  background: #007bff;
+  border-radius: 10px;
+}
+
+/* ================= INPUT ================= */
+.chat-input-container {
+  display: flex;
+  padding: 10px;
+}
+
+.chat-input-container input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+}
+
+.chat-input-container button {
+  margin-left: 5px;
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+/* ================= MESSAGES ================= */
+.message {
+  display: flex;
+  margin: 6px 0;
+}
+
+.user-message {
+  margin-left: auto;
+  background: #007bff;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(0,123,255,0.4);
+  animation: fadeIn 0.3s;
+}
+
+.bot-message {
+  margin-right: auto;
+  background: #eefcff;
+  padding: 8px 12px;
+  border-radius: 15px;
+  border: 1px solid #d0f0ff;
+  animation: fadeIn 0.3s;
+}
+
+/* ================= EMOJI ================= */
+.emojis {
+  text-align: center;
+  padding: 5px;
+}
+
+.emoji {
+  cursor: pointer;
+  margin: 3px;
+}
+
+/* ================= ANIMATIONS ================= */
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+@keyframes slideUp {
+  from {transform: translateY(30px); opacity: 0;}
+  to {transform: translateY(0); opacity: 1;}
+}
+
+@keyframes bounce {
+  0%,100% {transform: scale(1);}
+  50% {transform: scale(1.1);}
+}
+
+/* ================= DARK MODE ================= */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #0b0f1a;
+    color: #e0e0e0;
+  }
+
+  .card {
+    background: rgba(20,20,30,0.9);
+    color: #fff;
+  }
+
+  .chatbox {
+    background: #0f172a;
+  }
+}
+
+</style>
+
+</head>
+
+<body>
+<!-- HERO -->
+<div class="hero" id="hero">
+  <canvas id="heroCanvas"></canvas>
+
+  <div class="hero-content">
+    <h1>Saurabh Tiwari</h1>
+    <p class="tagline">AI Engineer • Agentic AI • LLM Systems</p>
+    <p class="sub-text">
+      Building intelligent systems using LLMs, RAG, and Multi-Agent architectures
+    </p>
+
+    <div class="hero-buttons">
+      <a href="#projects" class="btn">View Projects</a>
+      <a href="#contact" class="btn secondary">Contact Me</a>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+
+  <!-- ABOUT -->
+  <h2>About Me</h2>
+  <div class="card glass">
+    <p>
+      I am an <strong>AI/ML Developer with 2+ years of experience</strong> specializing in 
+      <strong>LLMs, Agentic AI, and RAG-based systems</strong>.
+    </p>
+
+    <p>
+      I design and build intelligent automation systems that integrate with real-world 
+      enterprise workflows such as ITSM, monitoring systems, and productivity platforms.
+    </p>
+
+    <p>
+      My focus is on <strong>building scalable AI systems</strong> — not just models.
+    </p>
+  </div>
+
+  <!-- SKILLS -->
+  <h2>Core Expertise</h2>
+  <div class="grid">
+
+    <div class="card glass">
+      <h3>🤖 LLM & Agentic AI</h3>
+      <p>LangChain, LangGraph, MCP, Multi-Agent Systems, Tool Calling, Memory</p>
+    </div>
+
+    <div class="card glass">
+      <h3>🧠 Machine Learning</h3>
+      <p>ML, DL, NLP, Feature Engineering, Predictive Models</p>
+    </div>
+
+    <div class="card glass">
+      <h3>⚡ Backend & Systems</h3>
+      <p>FastAPI, APIs, RAG Pipelines, Vector Search, Automation</p>
+    </div>
+
+    <div class="card glass">
+      <h3>☁️ Tools & Infra</h3>
+      <p>AWS EC2, PostgreSQL, Kafka, HuggingFace, OpenAI</p>
+    </div>
+
+  </div>
+
+  <!-- EXPERIENCE -->
+  <h2>Experience</h2>
+  <div class="card glass">
+    <h3>AI/ML Developer — In2IT Technologies</h3>
+    <p><em>April 2024 – Present</em></p>
+
+    <ul>
+      <li>Built and deployed LLM-based applications using RAG and LangChain</li>
+      <li>Developed agent-based workflows for automation and enterprise integration</li>
+      <li>Worked on real-time AI systems for monitoring and diagnosis</li>
+    </ul>
+  </div>
+
+  <!-- PROJECTS -->
+  <h2 id="projects">Projects</h2>
+  <div class="grid">
+
+    <div class="card glass">
+      <h3>🚀 iProvision AI Chatbot</h3>
+      <p>
+        AI-powered network operations assistant for real-time fault diagnosis,
+        outage detection, and automated incident creation.
+      </p>
+    </div>
+
+    <div class="card glass">
+      <h3>💼 ITSM Chatbot</h3>
+      <p>
+        Automated ticket creation, status tracking, and RAG-based FAQ system
+        reducing manual support workload.
+      </p>
+    </div>
+
+    <div class="card glass">
+      <h3>📊 ProWatch AI Assistant</h3>
+      <p>
+        Productivity monitoring system with AI insights, reporting, and user activity analysis.
+      </p>
+    </div>
+
+    <div class="card glass">
+      <h3>🧬 LLM Fine-Tuning</h3>
+      <p>
+        Fine-tuned LLaMA & Mistral using LoRA/QLoRA for domain-specific tasks.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- CONTACT -->
+  <h2 id="contact">Contact</h2>
+  <div class="card glass">
+    <p>📧 sauravtiwarich555@gmail.com</p>
+    <p>🔗 linkedin.com/in/saurabh-tiwari-477022234</p>
+  </div>
+
+</div>
+
+<!-- CHATBOT -->
+<div class="chatbot-button" onclick="toggleChatbox()">🤖</div>
+
+<div class="chatbox" id="chatbox">
+  <div class="chat-header">AI Assistant</div>
+
+  <div class="chatbox-content" id="chatMessages"></div>
+
+  <div class="chat-input-container">
+    <input type="text" id="userInput" placeholder="Ask about my work..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<script>
+function toggleChatbox() {
+  const box = document.getElementById("chatbox");
+  box.style.display = (box.style.display === "flex") ? "none" : "flex";
+}
+
+function sendMessage() {
+  const input = document.getElementById("userInput");
+  const messages = document.getElementById("chatMessages");
+
+  let text = input.value.trim();
+  if (!text) return;
+
+  messages.innerHTML += `
+    <div class="message">
+      <div class="user-message">${text}</div>
+    </div>
+  `;
+
+  input.value = "";
+
+  let reply = "I can help you explore my work.";
+
+  if (text.includes("hi")) reply = "Hello 👋";
+  if (text.includes("project")) reply = "Check my projects above 🚀";
+  if (text.includes("skill")) reply = "I work on AI, ML, and LLM systems.";
+
+  setTimeout(() => {
+    messages.innerHTML += `
+      <div class="message">
+        <div class="bot-message">${reply}</div>
+      </div>
+    `;
+    messages.scrollTop = messages.scrollHeight;
+  }, 500);
+}
+
+document.getElementById("userInput")
+.addEventListener("keydown", e => {
+  if (e.key === "Enter") sendMessage();
+});
+
+function addEmoji(e) {
+  document.getElementById("userInput").value += e;
+}
+
+</script>
+
+<!-- this is the ui scrip[t] -->
+
+
+<script>
+const canvas = document.getElementById("heroCanvas");
+const ctx = canvas.getContext("2d");
+
+let w, h;
+function resize() {
+  w = canvas.width = window.innerWidth;
+  h = canvas.height = canvas.parentElement.offsetHeight;
+}
+resize();
+window.addEventListener("resize", resize);
+
+let mouse = { x: 0, y: 0 };
+let prev = { x: 0, y: 0 };
+let isInside = false;
+let lastMoveTime = Date.now();
+
+const hero = document.getElementById("hero");
+
+hero.addEventListener("mouseenter", () => isInside = true);
+
+hero.addEventListener("mouseleave", () => {
+  isInside = false;
+  particles = [];
+  ctx.clearRect(0, 0, w, h);
+});
+
+hero.addEventListener("mousemove", (e) => {
+  const rect = canvas.getBoundingClientRect();
+  prev.x = mouse.x;
+  prev.y = mouse.y;
+
+  mouse.x = e.clientX - rect.left;
+  mouse.y = e.clientY - rect.top;
+
+  lastMoveTime = Date.now();
+});
+
+let particles = [];
+
+function createParticle() {
+  particles.push({
+    x: mouse.x,
+    y: mouse.y,
+    vx: (mouse.x - prev.x) * 0.25,
+    vy: (mouse.y - prev.y) * 0.25,
+    life: 80,
+    size: Math.random() * 100 + 80,
+    hue: Math.random() * 360
+  });
+}
+
+function draw() {
+  // ✨ smooth fade (no blink)
+  ctx.fillStyle = "rgba(0,0,0,0.06)";
+  ctx.fillRect(0, 0, w, h);
+
+  let now = Date.now();
+  let idleTime = now - lastMoveTime;
+
+  // 🔥 generate particles when moving
+  if (isInside && idleTime < 200) {
+    for (let i = 0; i < 2; i++) createParticle();
+  }
+
+  // ✨ idle soft glow pulse
+  let pulse = 0;
+  if (isInside && idleTime > 200) {
+    pulse = Math.sin(now * 0.005) * 20;
+  }
+
+  particles.forEach((p, i) => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life--;
+
+    let size = p.size + pulse;
+
+    // 🌈 smooth radial gradient (NO HARD CIRCLE)
+    let grad = ctx.createRadialGradient(
+      p.x, p.y, size * 0.1,
+      p.x, p.y, size
+    );
+
+    grad.addColorStop(0, `hsla(${p.hue},100%,60%,0.25)`);
+    grad.addColorStop(0.3, `hsla(${p.hue+40},100%,50%,0.15)`);
+    grad.addColorStop(0.6, `hsla(${p.hue+80},100%,40%,0.08)`);
+    grad.addColorStop(1, `hsla(${p.hue+120},100%,30%,0)`);
+
+    ctx.fillStyle = grad;
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (p.life <= 0) particles.splice(i, 1);
+  });
+
+  requestAnimationFrame(draw);
+}
+
+draw();
+</script>
+
+</body>
+</html>
